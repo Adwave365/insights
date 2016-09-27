@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -19,23 +20,35 @@ import java.util.List;
 public class Account extends Entity {
 
     private String name;
-    private LocalDateTime created;
+    private ZonedDateTime created;
     final private static String edgeBase = "accounts";
 
     public Account() {
         super();
     }
 
+    /**
+     * @param name The Account's name
+     */
     public Account(String name) {
         super();
         this.name = name;
     }
 
+    /**
+     *
+     * @param id The Id of the Account
+     */
     public Account(Integer id) {
         super();
         this.id = id;
     }
 
+    /**
+     *
+     * @param id The Id of the Account
+     * @param name The name of the account
+     */
     public Account(Integer id, String name) {
         super();
         this.id = id;
@@ -44,34 +57,55 @@ public class Account extends Entity {
 
     /* Setters and Getters */
 
-    @Override
-    public Account setId(Integer id) {
+    /**
+     * @param id The Account ID
+     * @return Returns the Account object for chaining
+     */
+    @Override public Account setId(Integer id) {
         super.setId(id);
 
         return this;
     }
 
+    /**
+     * @param name The Account name
+     * @return Returns the Account object ofr chaining
+     */
     public Account setName(String name) {
         this.name = name;
 
         return this;
     }
 
+    /**
+     * @return The name of the Account
+     */
     public String getName() { return name; }
 
-    public Account setCreated(LocalDateTime created) {
+    /**
+     * @param created The created date and time as a ZonedDateTime object
+     * @return Returns the Account object for chaining
+     */
+    public Account setCreated(ZonedDateTime created) {
         this.created = created;
 
         return this;
     }
 
+    /**
+     * @param created The created date and time as a CharSequence
+     * @return Returns the Account object for chaining
+     */
     public Account setCreated(CharSequence created) {
-        this.created = LocalDateTime.parse(created);
+        this.created = ZonedDateTime.parse(created);
 
         return this;
     }
 
-    public LocalDateTime getCreated() { return created; }
+    /**
+     * @return The created date and time as a ZonedDateTime object
+     */
+    public ZonedDateTime getCreated() { return created; }
 
     /* CRUD Methods */
 
