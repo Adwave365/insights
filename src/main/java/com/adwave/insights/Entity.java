@@ -62,27 +62,27 @@ public class Entity {
         return new URL(protocol, host, port, baseUrl.concat(path));
     }
 
-    static <T> T create(Class<T> valueType) throws InstantiationException, IllegalAccessException {
+    public static <T> T create(Class<T> valueType) throws InstantiationException, IllegalAccessException {
         return valueType.newInstance();
     }
 
-    static <T> T create(InputStream stream, Class<T> valueType) throws IOException {
+    public static <T> T create(InputStream stream, Class<T> valueType) throws IOException {
         return mapper.readValue(stream, valueType);
     }
 
-    static <T> T create(File file, Class<T> valueType) throws IOException {
+    public static <T> T create(File file, Class<T> valueType) throws IOException {
         return mapper.readValue(file, valueType);
     }
 
-    static <T> T create(byte[] data, Class<T> valueType) throws IOException {
+    public static <T> T create(byte[] data, Class<T> valueType) throws IOException {
         return mapper.readValue(data, valueType);
     }
 
-    static <T> T create(String data, Class<T> valueType) throws IOException {
+    public static <T> T create(String data, Class<T> valueType) throws IOException {
         return mapper.readValue(data, valueType);
     }
 
-    static <T> T create(BufferedReader data, Class<T> valueType) throws IOException {
+    public static <T> T create(BufferedReader data, Class<T> valueType) throws IOException {
         return mapper.readValue(data, valueType);
     }
 
