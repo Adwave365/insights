@@ -8,11 +8,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Nullable;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -27,9 +27,9 @@ public class Entity {
     @Nullable
     protected Integer id;
     protected static ObjectMapper mapper = new ObjectMapper();
-    protected static String protocol = "http";
-    protected static String host = "localhost";
-    protected static int port = 8000;
+    protected static String protocol = "https";
+    protected static String host = "insights.adwave365.com";
+    protected static int port = 443;
     protected static String baseUrl = "/api/";
     protected static String edgeBase;
 
@@ -87,20 +87,21 @@ public class Entity {
     }
 
     static InputStream get(URL edge) throws IOException, OAuthException {
-        HttpURLConnection connection = (HttpURLConnection) edge.openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) edge.openConnection();
 
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Content-Type", "application/json");
 
         InputStream is = connection.getInputStream();
 
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+        if (connection.getResponseCode() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
             throw new OAuthException(mapper.readValue(is, OAuth2.OAuthErrorResponse.class));
-        } else if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        } else if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
             throw new IOException();
         }
 
         return is;
+
     }
 
     static <T> T get(Class<T> valueType, URL edge) throws IOException, OAuthException {
@@ -141,7 +142,7 @@ public class Entity {
 
     static void delete(Entity object) throws IOException {
         URL edge = object.getRestEdge();
-        HttpURLConnection connection = (HttpURLConnection) edge.openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) edge.openConnection();
 
         connection.setRequestMethod("DELETE");
         connection.setRequestProperty("Content-Type", "application/json");

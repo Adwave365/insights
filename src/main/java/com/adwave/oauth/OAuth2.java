@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -151,7 +151,7 @@ public class OAuth2 {
                 refreshToken(refresh_token);
             }
 
-            HttpURLConnection connection = (HttpURLConnection) edge.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) edge.openConnection();
 
             connection.setRequestMethod(method);
             connection.setRequestProperty("Content-Type", "application/json");
@@ -172,7 +172,7 @@ public class OAuth2 {
 
             List<Integer> ids = new LinkedList<Integer>();
 
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+            if (connection.getResponseCode() == HttpsURLConnection.HTTP_CREATED) {
 
                 if (connection.getHeaderFields().containsKey("Link")) {
                     List<String> links = connection.getHeaderFields().get("Link");
@@ -183,7 +183,7 @@ public class OAuth2 {
                         ids.add(Integer.parseInt(filename));
                     }
                 }
-            } else if (connection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
+            } else if (connection.getResponseCode() == HttpsURLConnection.HTTP_NO_CONTENT) {
                 for (Entity object : objects) {
                     ids.add(object.getId());
                 }
@@ -344,7 +344,7 @@ public class OAuth2 {
         public OAuthPayload getData() { return data; }
 
         public OAuthTokenResponse send() throws IOException {
-            HttpURLConnection connection = (HttpURLConnection) getUrl().openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) getUrl().openConnection();
             ObjectMapper mapper = new ObjectMapper();
 
             if (null != getToken()) {
