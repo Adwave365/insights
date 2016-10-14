@@ -1,20 +1,26 @@
-package com.adwave.oauth;
+package com.adwave.client.oauth;
 
-import com.adwave.insights.Entity;
+import com.adwave.client.insights.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sun.misc.Regexp;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by alexboyce on 7/4/16.
@@ -32,7 +38,15 @@ public class OAuth2 {
         private URL redirectUrl;
         private String token;
         private String refresh_token;
-        private LocalDateTime expires;
+        private ZonedDateTime expires;
+
+        public Client() {
+            try {
+                tokenUrl = new URL("https://insights.adwave365.com/token");
+            } catch (MalformedURLException e) {
+                System.err.println("The token URL is malformed");
+            }
+        }
 
         public String getId() {
             return id;
@@ -86,7 +100,7 @@ public class OAuth2 {
             return this;
         }
 
-        public URL authorize(String username, String password) throws MalformedURLException {
+        public URL generateAuthorizeUrl(String username, String password) throws MalformedURLException {
             return new URL(String.format("%s?client_id=%s&client_secret=%s&grant_type=%s&response_type=token&username=%s&password=%s",
                     tokenUrl,
                     id,
@@ -97,17 +111,17 @@ public class OAuth2 {
             ));
         }
 
-        public OAuthTokenResponse getToken(String username, String password) throws IOException, OAuthException {
-            OAuthTokenResponse response =  new OAuthTokenRequest(authorize(username, password)).send();
+        public OAuthTokenResponse authorize(String username, String password) throws IOException, OAuthException {
+            OAuthTokenResponse response =  new OAuthTokenRequest(generateAuthorizeUrl(username, password)).send();
 
             token = response.getAccessToken();
             refresh_token = response.getRefreshToken();
-            expires = LocalDateTime.now().plusMinutes(response.getExpires());
+            expires = ZonedDateTime.now().plusMinutes(response.getExpires());
 
             return response;
         }
 
-        public OAuthTokenResponse getToken(String authCode) throws IOException, OAuthException {
+        public OAuthTokenResponse authorize(String authCode) throws IOException, OAuthException {
             OAuthTokenResponse response = new OAuthTokenRequest(tokenUrl)
                     .setData(new OAuthPayload()
                             .setCode(authCode)
@@ -120,9 +134,21 @@ public class OAuth2 {
 
             token = response.getAccessToken();
             refresh_token = response.getRefreshToken();
-            expires = LocalDateTime.now().plusMinutes(response.getExpires());
+            expires = ZonedDateTime.now().plusMinutes(response.getExpires());
 
             return response;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public ZonedDateTime getExpires() {
+            return expires;
+        }
+
+        public String getRefreshToken() {
+            return refresh_token;
         }
 
         public OAuthTokenResponse refreshToken(String refreshToken) throws IOException {
@@ -139,60 +165,68 @@ public class OAuth2 {
 
             token = response.getAccessToken();
             refresh_token = response.getRefreshToken();
-            expires = LocalDateTime.now().plusMinutes(response.getExpires());
+            expires = ZonedDateTime.now().plusMinutes(response.getExpires());
 
             return response;
         }
 
-        public List<Integer> send(List<? extends Entity> objects, URL edge, String method) throws IOException {
+        public List<?> send(List<? extends Entity> objects, URL edge, String method) throws IOException {
             ObjectMapper mapper = new ObjectMapper();
 
-            if (LocalDateTime.now().isAfter(expires)) {
+            if (ZonedDateTime.now().isAfter(expires)) {
                 refreshToken(refresh_token);
             }
 
-            HttpsURLConnection connection = (HttpsURLConnection) edge.openConnection();
+            HttpURLConnection connection = prepareConnection(edge, method);
 
-            connection.setRequestMethod(method);
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Authorization", "Bearer " + token);
-            connection.setDoInput(true);
+            if (!method.equals("GET")) {
+                OutputStream os = connection.getOutputStream();
 
-            if (method.equals("POST") || method.equals("PUT")) {
-                connection.setDoOutput(true);
+                mapper.writeValue(os, objects);
+                os.flush();
+                os.close();
             }
-
-            OutputStream os = connection.getOutputStream();
-
-            mapper.writeValue(os, objects);
-            os.flush();
-            os.close();
 
             connection.connect();
 
             List<Integer> ids = new LinkedList<Integer>();
 
-            if (connection.getResponseCode() == HttpsURLConnection.HTTP_CREATED) {
-
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
                 if (connection.getHeaderFields().containsKey("Link")) {
-                    List<String> links = connection.getHeaderFields().get("Link");
-
-                    for (String link : links) {
-                        String[] parts = link.replace(">", "").split("/");
-                        String filename = parts[parts.length - 1].replace(".json", "");
-                        ids.add(Integer.parseInt(filename));
+                    Pattern rx = Pattern.compile("^<.*?(\\d+)(\\?_format=json|\\.json)?>$");
+                    for(String link : connection.getHeaderFields().get("Link")) {
+                        Matcher m = rx.matcher(link);
+                        if (m.find()) {
+                            ids.add(Integer.parseInt(m.group(1)));
+                        }
                     }
                 }
-            } else if (connection.getResponseCode() == HttpsURLConnection.HTTP_NO_CONTENT) {
+            } else if (connection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
                 for (Entity object : objects) {
                     ids.add(object.getId());
                 }
+            } else if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return mapper.readValue(connection.getContent().toString(), objects.getClass());
             } else {
-                System.err.println(connection.getContent());
                 throw new IOException();
             }
 
             return ids;
+        }
+
+        private HttpURLConnection prepareConnection(URL edge, String method) throws IOException {
+            HttpURLConnection connection = edge.getProtocol().equals("https")
+                    ? (HttpsURLConnection) edge.openConnection()
+                    : (HttpURLConnection) edge.openConnection()
+                    ;
+
+            connection.setRequestMethod(method);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + token);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            return connection;
         }
     }
 

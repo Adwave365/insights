@@ -1,15 +1,19 @@
-package com.adwave.insights;
+package com.adwave.client.insights;
 
 
-import com.adwave.oauth.OAuthException;
+import com.adwave.client.oauth.OAuthException;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +25,8 @@ public class Kiosk extends Entity {
     private String name;
     private Account account;
     private String timezone;
+    private ZonedDateTime updated;
+    private ZonedDateTime created;
     final private static String edgeBase = "kiosks";
 
     public Kiosk() { }
@@ -50,6 +56,10 @@ public class Kiosk extends Entity {
         this.account = account;
     }
 
+    protected URL getRestEdge() throws MalformedURLException {
+        return Entity.getRestEdge(edgeBase);
+    }
+
     /* Setters ang Getters */
 
     public Kiosk setId(Integer id) {
@@ -72,12 +82,6 @@ public class Kiosk extends Entity {
         return this;
     }
 
-    public Kiosk setAccount(Integer account_id) {
-        this.account = new Account();
-
-        return this;
-    }
-
     public Account getAccount() { return account; }
 
     public Kiosk setTimezone(String timezone) {
@@ -88,27 +92,79 @@ public class Kiosk extends Entity {
 
     public String getTimezone() { return timezone; }
 
+    /**
+     * @param updated The updated date and time as a ZonedDateTime object
+     * @return Returns the Kiosk object for chaining
+     */
+    public Kiosk setUpdated(ZonedDateTime updated) {
+        this.updated = updated;
+
+        return this;
+    }
+
+    /**
+     * @param updated The created date and time as a String
+     * @return Returns the Kiosk object for chaining
+     */
+    @JsonSetter
+    public Kiosk setUpdated(String updated) {
+        this.updated = ZonedDateTime.parse(updated, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
+
+        return this;
+    }
+
+    /**
+     * @return The updated date and time as a ZonedDateTime object
+     */
+    public ZonedDateTime getUpdated() { return updated; }
+
+    /**
+     * @param created The created date and time as a ZonedDateTime object
+     * @return Returns the Kiosk object for chaining
+     */
+    public Kiosk setCreated(ZonedDateTime created) {
+        this.created = created;
+
+        return this;
+    }
+
+    /**
+     * @param created The created date and time as a String
+     * @return Returns the Kiosk object for chaining
+     */
+    @JsonSetter
+    public Kiosk setCreated(String created) {
+        this.created = ZonedDateTime.parse(created, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
+
+        return this;
+    }
+
+    /**
+     * @return The created date and time as a ZonedDateTime object
+     */
+    public ZonedDateTime getCreated() { return created; }
+
 
     /* CRUD Operations */
 
     public static Kiosk create(InputStream stream) throws IOException {
-        return Entity.create(stream, Kiosk.class);
+        return create(stream, Kiosk.class);
     }
 
     public static Kiosk create(File file) throws IOException {
-        return Entity.create(file, Kiosk.class);
+        return create(file, Kiosk.class);
     }
 
     public static Kiosk create(byte[] data) throws IOException {
-        return Entity.create(data, Kiosk.class);
+        return create(data, Kiosk.class);
     }
 
     public static Kiosk create(String data) throws IOException {
-        return Entity.create(data, Kiosk.class);
+        return create(data, Kiosk.class);
     }
 
     public static Kiosk create(BufferedReader data) throws IOException {
-        return Entity.create(data, Kiosk.class);
+        return create(data, Kiosk.class);
     }
 
     public static List<Kiosk> get() throws IOException, OAuthException {
@@ -138,11 +194,11 @@ public class Kiosk extends Entity {
             params = params.concat(String.format("&account[]=%d", account.getId()));
         }
 
-        return Entity.get(new TypeReference<List<Kiosk>>(){}, new URL(Entity.getRestEdge(edgeBase), params));
+        return get(new TypeReference<List<Kiosk>>(){}, new URL(getRestEdge(edgeBase), params));
     }
 
     public static Kiosk get(Integer id) throws IOException, OAuthException {
-        return Entity.get(Kiosk.class, Entity.getRestEdge(edgeBase + "/" + id));
+        return get(Kiosk.class, getRestEdge(edgeBase + "/" + id));
     }
 
 }

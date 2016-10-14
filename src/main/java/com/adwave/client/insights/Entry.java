@@ -1,7 +1,7 @@
-package com.adwave.insights;
+package com.adwave.client.insights;
 
-import com.adwave.json.ZonedDateTimeSerializer;
-import com.adwave.oauth.OAuthException;
+import com.adwave.client.json.ZonedDateTimeSerializer;
+import com.adwave.client.oauth.OAuthException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -116,6 +117,10 @@ public class Entry extends Entity {
         this.disconnected = disconnected;
     }
 
+    protected URL getRestEdge() throws MalformedURLException {
+        return Entity.getRestEdge(edgeBase);
+    }
+
     /* Setters and Getters */
 
     public Kiosk getKiosk() {
@@ -191,23 +196,23 @@ public class Entry extends Entity {
     /* CRUD Methods */
 
     public static Entry create(InputStream stream) throws IOException {
-        return Entity.create(stream, Entry.class);
+        return create(stream, Entry.class);
     }
 
     public static Entry create(File file) throws IOException {
-        return Entity.create(file, Entry.class);
+        return create(file, Entry.class);
     }
 
     public static Entry create(byte[] data) throws IOException {
-        return Entity.create(data, Entry.class);
+        return create(data, Entry.class);
     }
 
     public static Entry create(String data) throws IOException {
-        return Entity.create(data, Entry.class);
+        return create(data, Entry.class);
     }
 
     public static Entry create(BufferedReader data) throws IOException {
-        return Entity.create(data, Entry.class);
+        return create(data, Entry.class);
     }
 
     public static List<Entry> get(List<Kiosk> kiosks, ZonedDateTime end) throws IOException, OAuthException {
@@ -234,20 +239,12 @@ public class Entry extends Entity {
             params = params.concat(String.format("&kiosks[]=%d", kiosk.getId()));
         }
 
-        URL edge = new URL(Entity.getRestEdge(edgeBase), params);
+        URL edge = new URL(getRestEdge(edgeBase), params);
 
-        return Entity.get(new TypeReference<List<Entry>>(){}, edge);
+        return get(new TypeReference<List<Entry>>(){}, edge);
     }
 
     public static Entry get(Integer id) throws IOException, OAuthException {
-        return Entity.get(Entry.class, Entity.getRestEdge(edgeBase + "/" + id));
-    }
-
-    public static List<Integer> insert(List<Entry> entries) throws IOException {
-        return Entity.save(entries, Entry.getRestEdge(edgeBase), "POST");
-    }
-
-    public static List<Integer> update(List<Entry> entries) throws IOException {
-        return Entity.save(entries, Entry.getRestEdge(edgeBase), "PUT");
+        return get(Entry.class, getRestEdge(edgeBase + "/" + id));
     }
 }

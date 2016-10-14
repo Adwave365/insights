@@ -1,15 +1,19 @@
-package com.adwave.insights;
+package com.adwave.client.insights;
 
-import com.adwave.oauth.OAuthException;
+import com.adwave.client.oauth.OAuthException;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -20,7 +24,7 @@ public class Account extends Entity {
 
     private String name;
     private ZonedDateTime created;
-    final private static String edgeBase = "accounts";
+    final protected static String edgeBase = "accounts";
 
     public Account() {
         super();
@@ -52,6 +56,10 @@ public class Account extends Entity {
         super();
         this.id = id;
         this.name = name;
+    }
+
+    protected URL getRestEdge() throws MalformedURLException {
+        return Entity.getRestEdge(edgeBase);
     }
 
     /* Setters and Getters */
@@ -92,11 +100,12 @@ public class Account extends Entity {
     }
 
     /**
-     * @param created The created date and time as a CharSequence
+     * @param created The created date and time as a String
      * @return Returns the Account object for chaining
      */
-    public Account setCreated(CharSequence created) {
-        this.created = ZonedDateTime.parse(created);
+    @JsonSetter
+    public Account setCreated(String created) {
+        this.created = ZonedDateTime.parse(created, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
 
         return this;
     }
@@ -109,40 +118,39 @@ public class Account extends Entity {
     /* CRUD Methods */
 
     public static Account create(InputStream stream) throws IOException {
-        return Entity.create(stream, Account.class);
+        return create(stream, Account.class);
     }
 
     public static Account create(File file) throws IOException {
-        return Entity.create(file, Account.class);
+        return create(file, Account.class);
     }
 
     public static Account create(byte[] data) throws IOException {
-        return Entity.create(data, Account.class);
+        return create(data, Account.class);
     }
 
     public static Account create(String data) throws IOException {
-        return Entity.create(data, Account.class);
+        return create(data, Account.class);
     }
 
     public static Account create(BufferedReader data) throws IOException {
-        return Entity.create(data, Account.class);
+        return create(data, Account.class);
     }
 
-    public static List<Account> get() throws IOException, OAuthException {
-        return Account.get(0, 20);
+    public static List<Account> get() throws IOException, URISyntaxException, OAuthException {
+        Entity.Pager pager = new Entity.Pager();
+
+        return Account.get(pager);
     }
 
-    public static List<Account> get(int page) throws IOException, OAuthException {
-        return Account.get(page, 20);
-    }
+    public static List<Account> get(Entity.Pager pager) throws IOException, URISyntaxException, OAuthException {
+        URL base = getRestEdge(Account.edgeBase);
+        URL edge = pager.appendURL(base);
 
-    public static List<Account> get(int page, int limit) throws IOException, OAuthException {
-        return Entity.get(new TypeReference<List<Account>>(){},
-                new URL(Entity.getRestEdge(edgeBase),
-                String.format("?page=%d&limit=%d", page, limit)));
+        return get(new TypeReference<List<Account>>(){}, edge);
     }
 
     public static Account get(Integer id) throws IOException, OAuthException {
-        return Entity.get(Account.class, Entity.getRestEdge(edgeBase + "/" + id));
+        return get(Account.class, getRestEdge(String.format("%s/%s", edgeBase, id)));
     }
 }

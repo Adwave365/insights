@@ -1,4 +1,4 @@
-package com.adwave.json;
+package com.adwave.client.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -15,6 +15,6 @@ public class ZonedDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
 
     @Override
     public void serialize(ZonedDateTime dt, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeString(dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ssZ")));
+        gen.writeString(dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")));
     }
 }
