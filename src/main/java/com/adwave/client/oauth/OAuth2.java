@@ -208,6 +208,7 @@ public class OAuth2 {
             } else if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 return mapper.readValue(connection.getContent().toString(), objects.getClass());
             } else {
+                System.out.println(connection.getResponseCode());
                 throw new IOException();
             }
 

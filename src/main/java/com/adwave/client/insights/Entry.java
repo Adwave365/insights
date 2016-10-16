@@ -29,7 +29,6 @@ public class Entry extends Entity {
     private ZonedDateTime disconnected;
     private String model;
     private String manufacturer;
-
     private ZonedDateTime timestamp;
 
     final private static String edgeBase = "entries";
