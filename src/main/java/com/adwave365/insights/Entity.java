@@ -130,7 +130,7 @@ abstract public class Entity {
         return ids;
     }
 
-    public static List<Integer> insert(List<Entity> objects) throws IOException {
+    public static List<Integer> insert(List<? extends Entity> objects) throws IOException {
         if (objects.isEmpty()) {
             return new LinkedList<>();
         }
@@ -138,7 +138,7 @@ abstract public class Entity {
         return Entity.send(objects, objects.get(0).getRestEdge(), "POST");
     }
 
-    public static List<Integer> update(List<Entity> objects) throws IOException {
+    public static List<Integer> update(List<? extends Entity> objects) throws IOException {
         if (objects.isEmpty()) {
             return new LinkedList<>();
         }
@@ -146,7 +146,7 @@ abstract public class Entity {
         return Entity.send(objects, objects.get(0).getRestEdge(), "PUT");
     }
 
-    public static List<Integer> delete(List<Entity> objects) throws IOException {
+    public static List<Integer> delete(List<? extends Entity> objects) throws IOException {
         if (objects.isEmpty()) {
             return new LinkedList<>();
         }
