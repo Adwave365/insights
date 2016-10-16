@@ -6,7 +6,7 @@
 
     <groupId>com.adwave365</groupId>
     <artifactId>insights</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packaging>jar</packaging>
 
     <build>
