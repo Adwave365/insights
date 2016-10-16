@@ -1,10 +1,14 @@
 package com.adwave.client.insights;
 
+import com.adwave.client.oauth.ClientTest;
 import com.adwave.client.oauth.OAuth2;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -14,18 +18,21 @@ import static org.junit.Assert.*;
 public class AccountTest {
 
     private OAuth2.OAuthTokenResponse response;
+    private Properties properties = new Properties();
 
     public void getToken() throws Exception {
         response =
-                Account.client.authorize(System.getenv("ADWAVE_TEST_USER"), System.getenv("ADWAVE_TEST_PASSWORD"));
+                Account.client.authorize(properties.getProperty("ADWAVE_TEST_USER"), properties.getProperty("ADWAVE_TEST_PASSWORD"));
     }
 
     @Before
     public void setUp() throws Exception {
         if (null == Account.client) {
+            InputStream is = new FileInputStream("src/resources/test.properties");
+            properties.load(is);
             Account.client = new OAuth2.Client()
-                    .setId(System.getenv("ADWAVE_TEST_CLIENT_ID"))
-                    .setSecret(System.getenv("ADWAVE_TEST_CLIENT_SECRET"))
+                    .setId(properties.getProperty("ADWAVE_TEST_CLIENT_ID"))
+                    .setSecret(properties.getProperty("ADWAVE_TEST_CLIENT_SECRET"))
             ;
             getToken();
         }
