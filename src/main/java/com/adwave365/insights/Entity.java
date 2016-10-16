@@ -1,7 +1,7 @@
-package com.adwave.client.insights;
+package com.adwave365.insights;
 
-import com.adwave.client.oauth.OAuth2;
-import com.adwave.client.oauth.OAuthException;
+import com.adwave365.oauth.OAuth2;
+import com.adwave365.oauth.OAuthException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;

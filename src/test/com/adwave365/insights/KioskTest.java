@@ -1,22 +1,19 @@
-package com.adwave.client.insights;
+package com.adwave365.insights;
 
-import com.adwave.client.oauth.OAuth2;
-import org.joda.time.tz.DateTimeZoneBuilder;
+import com.adwave365.oauth.OAuth2;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by alexboyce on 10/16/16.
+ * Created by alexboyce on 10/13/16.
  */
-public class EntryTest {
+public class KioskTest {
     private OAuth2.OAuthTokenResponse response;
     private Properties properties = new Properties();
 
@@ -39,37 +36,28 @@ public class EntryTest {
     }
 
     @Test
-    public void testSave() throws Exception {
+    public void testSend() throws Exception {
         Account account = new Account();
 
         account.setName("Testing Account");
 
-        assertTrue(account.save());
+        boolean accountSaved = account.save();
 
-        ZoneId tz = ZoneId.of("America/New_York");
+        assertTrue(accountSaved);
 
         Kiosk kiosk = new Kiosk();
         kiosk.setName("Testing Kiosk")
                 .setAccount(account)
-                .setTimezone(tz.toString());
+                .setTimezone("America/New_York");
 
         assertTrue(kiosk.save());
+        assertNotNull(kiosk.getId());
 
-        Entry entry = new Entry();
-        entry.setUuid("ABC123");
-        entry.setKiosk(kiosk);
-        entry.setManufacturer("Apple");
-        entry.setModel("iPhone 5/5s/5c/6");
-        entry.setConnected(ZonedDateTime.of(2016, 10, 16, 11, 41, 0, 0, tz));
-        entry.setDisconnected(ZonedDateTime.of(2016, 10, 16, 12, 0, 0, 0, tz));
+        Kiosk other = Kiosk.get(kiosk.getId());
+        assertEquals(kiosk.getId(), other.getId());
+        assertTrue(kiosk.getName().equals(other.getName()));
 
-        assertTrue(entry.save());
-        assertNotNull(entry.getId());
-
-        assertTrue(entry.delete());
-        assertNull(entry.getId());
-
-        kiosk.delete();
+        assertTrue(kiosk.delete());
         account.delete();
     }
 }

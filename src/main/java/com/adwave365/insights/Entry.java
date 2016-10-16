@@ -1,7 +1,7 @@
-package com.adwave.client.insights;
+package com.adwave365.insights;
 
-import com.adwave.client.json.ZonedDateTimeSerializer;
-import com.adwave.client.oauth.OAuthException;
+import com.adwave365.json.ZonedDateTimeSerializer;
+import com.adwave365.oauth.OAuthException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -117,7 +117,7 @@ public class Entry extends Entity {
     }
 
     protected URL getRestEdge() throws MalformedURLException {
-        return Entity.getRestEdge(edgeBase);
+        return getRestEdge(edgeBase);
     }
 
     /* Setters and Getters */

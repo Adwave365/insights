@@ -1,4 +1,4 @@
-package com.adwave.client.json;
+package com.adwave365.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

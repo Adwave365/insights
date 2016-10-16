@@ -1,7 +1,6 @@
-package com.adwave.client.insights;
+package com.adwave365.insights;
 
-import com.adwave.client.oauth.ClientTest;
-import com.adwave.client.oauth.OAuth2;
+import com.adwave365.oauth.OAuth2;
 import org.junit.Before;
 import org.junit.Test;
 

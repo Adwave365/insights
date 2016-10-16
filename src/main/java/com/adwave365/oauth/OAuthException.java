@@ -1,4 +1,4 @@
-package com.adwave.client.oauth;
+package com.adwave365.oauth;
 
 /**
  * Created by alexboyce on 8/18/16.

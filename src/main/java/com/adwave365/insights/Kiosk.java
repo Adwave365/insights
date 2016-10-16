@@ -1,7 +1,7 @@
-package com.adwave.client.insights;
+package com.adwave365.insights;
 
 
-import com.adwave.client.oauth.OAuthException;
+import com.adwave365.oauth.OAuthException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -57,7 +57,7 @@ public class Kiosk extends Entity {
     }
 
     protected URL getRestEdge() throws MalformedURLException {
-        return Entity.getRestEdge(edgeBase);
+        return getRestEdge(edgeBase);
     }
 
     /* Setters ang Getters */

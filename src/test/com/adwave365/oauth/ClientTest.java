@@ -1,4 +1,4 @@
-package com.adwave.client.oauth;
+package com.adwave365.oauth;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
